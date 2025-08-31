@@ -1,12 +1,11 @@
-import { Tabs, usePathname, useRouter } from 'expo-router';
-import { Platform, ScrollView, TouchableOpacity, Text, View, StyleSheet, Dimensions } from 'react-native';
-import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import { Tabs, usePathname, useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Dimensions, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { HapticTab } from '@/components/HapticTab';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
@@ -29,18 +28,7 @@ const getIoniconsName = (sfSymbolName: string): keyof typeof Ionicons.glyphMap =
   return iconMap[sfSymbolName] || 'ellipse';
 };
 
-// Debounce utility function for optimized auto-scroll
-const debounce = (func: Function, wait: number) => {
-  let timeout: ReturnType<typeof setTimeout>;
-  return function executedFunction(...args: any[]) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
-};
+
 
 function CustomScrollableTabBar({ currentRoute, onTabPress }: { currentRoute: string, onTabPress: (route: string) => void }) {
   const colorScheme = useColorScheme();
@@ -72,9 +60,9 @@ function CustomScrollableTabBar({ currentRoute, onTabPress }: { currentRoute: st
     }));
   };
 
-  // Optimized auto-scroll with debounce
+  // Optimized auto-scroll
   const scrollToActiveTab = useCallback(
-    debounce((route: string) => {
+    (route: string) => {
       if (tabLayouts[route] && scrollViewRef.current) {
         const activeTabLayout = tabLayouts[route];
         const screenWidth = Dimensions.get('window').width - 32;
@@ -85,7 +73,7 @@ function CustomScrollableTabBar({ currentRoute, onTabPress }: { currentRoute: st
           animated: true,
         });
       }
-    }, 100),
+    },
     [tabLayouts]
   );
 
@@ -93,12 +81,11 @@ function CustomScrollableTabBar({ currentRoute, onTabPress }: { currentRoute: st
     if (tabLayouts[currentRoute] && scrollViewRef.current) {
       scrollToActiveTab(currentRoute);
     }
-  }, [currentRoute, scrollToActiveTab]);
+  }, [currentRoute, scrollToActiveTab, tabLayouts]);
 
   return (
     <View style={styles.tabBarWrapper}>
       <View style={styles.floatingPill}>
-        <TabBarBackground />
         <ScrollView 
           ref={scrollViewRef}
           horizontal 
@@ -189,7 +176,6 @@ export default function TabLayout() {
           tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
           headerShown: false,
           tabBarButton: HapticTab,
-          tabBarBackground: TabBarBackground,
           tabBarStyle: { display: 'none' },
         }}
       >
